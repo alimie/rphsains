@@ -52,23 +52,76 @@
                     `<input data-field="${k}" value="${val.replace(/"/g,'&quot;')}" spellcheck="true">`}
     </div>`;
   }
+  function activityToHtml(text){
+    const raw = String(text || "").replace(/\r/g,"").trim();
+    if(!raw) return "";
+    const lines = raw.split("\n").map(x=>x.trim()).filter(Boolean);
+    const items = [];
+    let current = "";
+
+    for(const line of lines){
+      const m = line.match(/^(?:[-•]\s*)?(\d+)[.)]\s*(.*)$/);
+      if(m){
+        if(current) items.push(current);
+        current = m[2];
+      }else if(/^[-•]\s+/.test(line) && current){
+        current += " " + line.replace(/^[-•]\s+/,"");
+      }else{
+        if(current) current += " " + line;
+        else current = line;
+      }
+    }
+    if(current) items.push(current);
+
+    if(!items.length) return `<p>${esc(raw).replace(/\n/g,"<br>")}</p>`;
+    return `<ol class="print-activity">${items.map(x=>`<li>${esc(x)}</li>`).join("")}</ol>`;
+  }
+
+  function printTable(r){
+    const row = (label, value, cls="") =>
+      `<tr><td class="label">${label}</td><td class="value ${cls}">${esc(value)}</td></tr>`;
+
+    return `
+      <div class="print-rph-title">RANCANGAN PENGAJARAN HARIAN (RPH)</div>
+      <table class="print-table">
+        ${row("Minggu", r.week)}
+        ${row("Hari", r.hari)}
+        ${row("Tarikh", r.tarikh)}
+        ${row("Kelas", r.kelas)}
+        ${row("Masa", r.masa)}
+        ${row("Mata Pelajaran", r.mataPelajaran)}
+        ${row("Tema", r.tema)}
+        ${row("Topik", r.topik)}
+        ${row("Standard Kandungan", r.standardKandungan)}
+        ${row("Standard Pembelajaran", r.standardPembelajaran)}
+        ${row("Objektif Pembelajaran", r.objektif)}
+        `<tr><td class="label">Aktiviti PdP</td><td class="value">${activityToHtml(r.aktiviti)}</td></tr>`
+        ${row("Pentaksiran", r.pentaksiran)}
+        ${row("Bahan Bantu Belajar", r.bbb)}
+        `<tr><td class="label">Refleksi</td><td class="value refleksi-cell">${esc(r.refleksi)}</td></tr>`
+      </table>`;
+  }
+
   function renderCard(r){
     r=merged(r);
     return `<article class="rph-card" data-id="${r.id}">
-      <header class="rph-card-header">
+      <header class="rph-card-header no-print">
         <div>
           <div class="rph-number">RPH ${r.id} · Minggu ${r.week}</div>
           <div class="rph-title">${esc(r.title)}</div>
         </div>
-        <div class="card-actions no-print">
+        <div class="card-actions">
           <span class="saved-indicator"><i class="bi bi-check-circle"></i> Disimpan</span>
           <button class="mini-btn primary save-one"><i class="bi bi-check2"></i> Simpan</button>
           <button class="mini-btn reset-one"><i class="bi bi-arrow-counterclockwise"></i> Reset</button>
         </div>
       </header>
-      <div class="rph-body"><div class="form-grid">
-        ${fields.map(f=>fieldHTML(r,f)).join("")}
-      </div></div>
+      <div class="rph-body">
+        <div class="form-grid no-print">
+          ${fields.map(f=>fieldHTML(r,f)).join("")}
+        </div>
+        ${printTable(r)}
+      </div>
     </article>`;
   }
   function render(){
@@ -109,7 +162,25 @@
       });
     });
   }
-  $("#printBtn").onclick=()=>window.print();
+  $("#printBtn").onclick=()=>{
+    document.querySelectorAll(".rph-card").forEach(card=>{
+      const data=getCardData(card);
+      saveRph(data);
+      const printRoot=card.querySelector(".rph-body");
+      const old=printRoot.querySelector(".print-table");
+      const temp=document.createElement("div");
+      temp.innerHTML=printTable(data);
+      const freshTable=temp.querySelector(".print-table");
+      const freshTitle=temp.querySelector(".print-rph-title");
+      const oldTable=printRoot.querySelector(".print-table");
+      const oldTitle=printRoot.querySelector(".print-rph-title");
+      if(oldTable) oldTable.replaceWith(freshTable);
+      else printRoot.appendChild(freshTable);
+      if(oldTitle) oldTitle.replaceWith(freshTitle);
+      else printRoot.insertBefore(freshTitle, printRoot.firstChild);
+    });
+    window.print();
+  };
   $("#resetWeekBtn").onclick=()=>{
     if(!confirm(`Reset semua RPH bagi Minggu ${week} kepada kandungan asal?`)) return;
     RPH_DATA.filter(r=>r.week===week).forEach(r=>delete overrides[key(r.id)]);

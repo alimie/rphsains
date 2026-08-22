@@ -22,21 +22,127 @@ button,input,textarea{font:inherit}
 .toast{position:fixed;right:20px;bottom:20px;background:#0f172a;color:#fff;padding:11px 15px;border-radius:10px;font-size:13px;box-shadow:var(--shadow);opacity:0;transform:translateY(10px);pointer-events:none;transition:.2s;z-index:50}.toast.show{opacity:1;transform:none}
 @media(max-width:900px){.app-shell{grid-template-columns:1fr}.sidebar{position:sticky;top:76px;height:auto;min-height:0;padding:10px 14px;z-index:10;border-right:0;border-bottom:1px solid var(--line)}.week-grid{display:flex;overflow-x:auto;gap:7px;padding-bottom:2px}.week-btn{min-width:58px}.sidebar-heading{display:none}.content{padding:17px 12px}.content-head{align-items:flex-start;flex-direction:column}.head-actions{width:100%}.head-actions .btn{flex:1;justify-content:center}.rph-card{border-radius:14px}.rph-card-header{padding:15px}.rph-body{padding:15px}.field.half,.field.third{grid-column:span 12}.topbar{height:68px;padding:0 13px}.top-actions span{display:none}.icon-btn{padding:9px}.brand-icon{width:38px;height:38px}.brand-title{font-size:14px}.brand-subtitle{font-size:10px}}
 @media print{
-  @page{size:A4 portrait;margin:9mm}
-  body{background:white}
-  .no-print,.topbar,.sidebar,.content-head,.toast{display:none!important}
-  .app-shell,.content{display:block;margin:0;padding:0;max-width:none}
-  .rph-card{display:block;border:0;box-shadow:none;border-radius:0;margin:0;overflow:visible;break-after:page;page-break-after:always}
-  .rph-card:last-child{break-after:auto;page-break-after:auto}
-  .rph-card-header{padding:0 0 7mm;border-bottom:1px solid #222;background:white}
-  .rph-number{font-size:9pt;color:#111}.rph-title{font-size:15pt;color:#111}
-  .card-actions,.saved-indicator{display:none!important}
-  .rph-body{padding:5mm 0 0}
-  .form-grid{gap:3mm 4mm}
-  .field{break-inside:avoid}
-  .field.half{grid-column:span 6}.field.third{grid-column:span 4}
-  .field label{font-size:7pt;color:#222;margin-bottom:1.5mm}
-  .field input,.field textarea{border:0;border-bottom:1px solid #bbb;border-radius:0;padding:1mm 0;font-size:8.2pt;color:#111;background:white;box-shadow:none;resize:none;overflow:visible}
-  .field textarea{min-height:0;line-height:1.28}
-  .activity textarea{min-height:0}
+  @page{
+    size:A4 portrait;
+    margin:20mm;
+  }
+
+  html,body{
+    background:#fff!important;
+    color:#000!important;
+    font-family:'Lexend',sans-serif!important;
+    font-size:12.5px;
+    line-height:1.5;
+  }
+
+  .no-print,.topbar,.sidebar,.content-head,.toast{
+    display:none!important;
+  }
+
+  .app-shell,.content{
+    display:block!important;
+    max-width:none!important;
+    margin:0!important;
+    padding:0!important;
+  }
+
+  .rph-card{
+    display:block!important;
+    width:100%!important;
+    border:0!important;
+    box-shadow:none!important;
+    border-radius:0!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:visible!important;
+    break-after:page;
+    page-break-after:always;
+  }
+
+  .rph-card:last-child{
+    break-after:auto;
+    page-break-after:auto;
+  }
+
+  .rph-card-header{
+    display:none!important;
+  }
+
+  .rph-body{
+    padding:0!important;
+  }
+
+  .print-rph-title{
+    display:block!important;
+    text-align:center;
+    font-size:18px;
+    font-weight:700;
+    margin:0 0 10px;
+    color:#000;
+  }
+
+  .print-table{
+    width:100%;
+    border-collapse:collapse;
+    table-layout:fixed;
+  }
+
+  .print-table td{
+    border:1px solid #000;
+    padding:6px 8px;
+    vertical-align:top;
+    color:#000;
+  }
+
+  .print-table td.label{
+    width:28%;
+    font-weight:600;
+    background:#f4f4f4;
+  }
+
+  .print-table td.value{
+    width:72%;
+  }
+
+  .print-table .refleksi-cell{
+    height:80px;
+  }
+
+  .print-activity{
+    margin:0;
+    padding-left:18px;
+  }
+
+  .print-activity li{
+    margin:0 0 3px;
+  }
+
+  .print-activity li:last-child{
+    margin-bottom:0;
+  }
+
+  .print-activity ul{
+    margin:3px 0;
+    padding-left:18px;
+  }
+
+  .print-table p{
+    margin:0 0 4px;
+  }
+
+  .print-table p:last-child{
+    margin-bottom:0;
+  }
+
+  .print-table ol,
+  .print-table ul{
+    margin-top:0;
+    margin-bottom:0;
+  }
+}
+
+/* Hidden during normal editing; only the print stylesheet displays it. */
+.print-rph-title,
+.print-table{
+  display:none;
 }
