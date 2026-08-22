@@ -1,0 +1,274 @@
+/* ==========================================================================
+   Landing page — builds on tokens declared in style.css (:root)
+   ========================================================================== */
+
+body.landing {
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* faint drifting notebook-grid backdrop */
+.landing-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(rgba(63, 113, 104, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(63, 113, 104, 0.055) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 40%, transparent 100%);
+}
+
+.landing-blob {
+  position: fixed;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(217, 154, 43, 0.16), transparent 70%);
+  top: -160px;
+  right: -140px;
+  z-index: -1;
+  animation: drift 16s ease-in-out infinite alternate;
+}
+@keyframes drift {
+  from { transform: translate(0, 0) scale(1); }
+  to { transform: translate(-24px, 30px) scale(1.06); }
+}
+
+/* ---------------- hero ---------------- */
+
+.hero {
+  padding: clamp(36px, 8vw, 64px) var(--gutter) 10px;
+  max-width: 920px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero .brand-mark {
+  animation: rise 0.5s ease both;
+}
+
+.hero h1 {
+  font-family: var(--font-display);
+  font-size: clamp(30px, 7vw, 46px);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  margin: 14px 0 10px;
+  color: var(--ink);
+  animation: rise 0.5s ease both 0.06s;
+}
+
+.hero p {
+  font-family: var(--font-body);
+  font-size: clamp(14.5px, 2.6vw, 17px);
+  color: var(--ink-soft);
+  max-width: 52ch;
+  margin: 0 auto;
+  line-height: 1.6;
+  animation: rise 0.5s ease both 0.12s;
+}
+
+.hero-meta {
+  display: flex;
+  justify-content: center;
+  gap: 18px;
+  margin-top: 22px;
+  flex-wrap: wrap;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--ink-soft);
+  animation: rise 0.5s ease both 0.18s;
+}
+.hero-meta span { display: inline-flex; align-items: center; gap: 6px; }
+.hero-meta svg { width: 14px; height: 14px; stroke: var(--moss-deep); flex: none; }
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------------- year grid ---------------- */
+
+.year-section {
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 30px var(--gutter) 20px;
+}
+
+.section-label {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--moss-deep);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.section-label:before {
+  content: "";
+  width: 16px;
+  height: 1.5px;
+  background: var(--moss);
+}
+
+.year-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.year-card {
+  position: relative;
+  overflow: hidden;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 20px 20px 18px;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  min-height: 168px;
+  animation: rise 0.45s ease both;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+.year-grid .year-card:nth-child(1) { animation-delay: 0.05s; }
+.year-grid .year-card:nth-child(2) { animation-delay: 0.10s; }
+.year-grid .year-card:nth-child(3) { animation-delay: 0.15s; }
+.year-grid .year-card:nth-child(4) { animation-delay: 0.20s; }
+.year-grid .year-card:nth-child(5) { animation-delay: 0.25s; }
+.year-grid .year-card:nth-child(6) { animation-delay: 0.30s; }
+
+.year-num {
+  position: absolute;
+  top: -8px;
+  right: 4px;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  font-size: 72px;
+  color: var(--ink);
+  opacity: 0.05;
+  line-height: 1;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+}
+
+.year-card-title {
+  font-family: var(--font-display);
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+  margin: 2px 0 8px;
+}
+
+.subject-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  color: var(--moss-deep);
+  background: rgba(63, 113, 104, 0.1);
+  border-radius: 999px;
+  padding: 4px 10px 4px 8px;
+  margin-bottom: auto;
+}
+.subject-chip svg { width: 13px; height: 13px; stroke: currentColor; flex: none; }
+
+.status-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line-strong);
+}
+
+.status-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--moss);
+  flex: none;
+  position: relative;
+}
+.pulse-dot:after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--moss);
+  opacity: 0.5;
+  animation: pulse 2.2s ease-out infinite;
+}
+@keyframes pulse {
+  0% { transform: scale(0.6); opacity: 0.55; }
+  100% { transform: scale(2.1); opacity: 0; }
+}
+
+.card-arrow {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  display: grid;
+  place-items: center;
+  flex: none;
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+}
+.card-arrow svg { width: 15px; height: 15px; stroke: var(--ink); }
+
+/* active (ready) card */
+.year-card.is-active .status-text { color: var(--moss-deep); }
+.year-card.is-active:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 4px 8px rgba(23,38,31,0.08), 0 20px 34px -16px rgba(23,38,31,0.28);
+  border-color: var(--moss);
+}
+.year-card.is-active:hover .year-num { opacity: 0.09; }
+.year-card.is-active:hover .card-arrow {
+  background: var(--ink);
+  border-color: var(--ink);
+  transform: translateX(3px);
+}
+.year-card.is-active:hover .card-arrow svg { stroke: var(--paper); }
+.year-card.is-active:active { transform: translateY(-2px) scale(0.99); }
+
+/* disabled (coming soon) card */
+.year-card.is-disabled {
+  cursor: default;
+  color: inherit;
+}
+.year-card.is-disabled .year-card-title,
+.year-card.is-disabled .subject-chip { opacity: 0.55; }
+.year-card.is-disabled .status-text { color: var(--ink-soft); }
+.year-card.is-disabled .card-arrow { opacity: 0.5; }
+.year-card.is-disabled .card-arrow svg { stroke: var(--ink-soft); }
+
+/* ---------------- footer ---------------- */
+
+.landing-footer {
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--ink-soft);
+  padding: 30px 20px 46px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero *, .year-card, .pulse-dot:after, .landing-blob { animation: none !important; transition: none !important; }
+}
