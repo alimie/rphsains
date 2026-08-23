@@ -430,7 +430,7 @@
       .map(function (s, i) { return "<li>Langkah " + (i + 1) + ": " + escHtml(s) + "</li>"; })
       .join("\n");
 
-    return (
+    var table = (
       "<h1>RANCANGAN PENGAJARAN HARIAN (RPH)</h1>\n" +
       "<table>\n" +
       "<tr><td class=\"label\">Minggu</td><td>" + entry.minggu + "</td></tr>\n" +
@@ -454,19 +454,75 @@
       "<tr><td class=\"label\">Refleksi</td><td class=\"refleksi\">" + escMultiline(entry.refleksi) + "</td></tr>\n" +
       "</table>"
     );
+
+    // .print-page is fixed to the printable page-content box; .print-page-inner
+    // is what gets measured and, if needed, scaled down to fit — see
+    // fitPrintPagesToOnePage() below. This is what removes the need to
+    // manually drop the browser's print "scale" to 90% or less.
+    return '<div class="print-page"><div class="print-page-inner">' + table + '</div></div>';
   }
 
   function buildPrintDocument(week) {
     var list = entriesForWeek(week).map(function (e) { return getEntry(e.id); })
       .sort(function (a, b) { return a.id - b.id; });
-    return list.map(buildPrintTable).join('\n<div class="page-break"></div>\n');
+    return list.map(buildPrintTable).join('\n');
+  }
+
+  // Keep these in sync with the #printArea .print-page CSS rules.
+  var PRINT_MARGIN_MM = 16;
+  var PRINT_PAGE_HEIGHT_MM = 297 - PRINT_MARGIN_MM * 2;
+  var MM_TO_PX = 96 / 25.4; // CSS reference pixel: 1mm = 96/25.4px at 1x
+  var PRINT_MIN_SCALE = 0.72; // legibility floor; beyond this we let it spill to a 2nd page
+
+  function fitPrintPagesToOnePage(printArea) {
+    // Render off-screen (not display:none) so heights are measurable, without
+    // ever flashing on screen or affecting normal document flow/scroll.
+    printArea.style.display = "block";
+    printArea.style.position = "fixed";
+    printArea.style.left = "-99999px";
+    printArea.style.top = "0";
+    printArea.style.visibility = "hidden";
+
+    var maxHeightPx = PRINT_PAGE_HEIGHT_MM * MM_TO_PX;
+    var pages = printArea.querySelectorAll(".print-page");
+    pages.forEach(function (page) {
+      var inner = page.querySelector(".print-page-inner");
+      inner.style.transform = "";
+      page.style.height = "";
+      page.style.overflow = "";
+
+      var naturalHeight = inner.scrollHeight;
+      if (naturalHeight > maxHeightPx) {
+        var requiredScale = maxHeightPx / naturalHeight;
+        if (requiredScale >= PRINT_MIN_SCALE) {
+          // fits within our legibility floor: scale down and clamp to one page
+          inner.style.transform = "scale(" + requiredScale + ")";
+          page.style.height = maxHeightPx + "px";
+          page.style.overflow = "hidden";
+        }
+        // else: even the floor scale wouldn't fit. Leave unscaled/unclamped
+        // so it spills naturally onto a second page — never silently clip
+        // or hide content just to force a single page.
+      }
+    });
+
+    // Reset inline overrides; #printArea's real print visibility is handled
+    // entirely by the @media print rule (display:none the rest of the time).
+    printArea.style.display = "";
+    printArea.style.position = "";
+    printArea.style.left = "";
+    printArea.style.top = "";
+    printArea.style.visibility = "";
   }
 
   document.getElementById("printBtn").addEventListener("click", function () {
     var printArea = document.getElementById("printArea");
     printArea.innerHTML = buildPrintDocument(currentWeek);
     requestAnimationFrame(function () {
-      window.print();
+      fitPrintPagesToOnePage(printArea);
+      requestAnimationFrame(function () {
+        window.print();
+      });
     });
   });
 

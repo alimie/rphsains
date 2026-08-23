@@ -516,15 +516,33 @@ textarea.editable {
 
 /* ==========================================================================
    Print — dedicated #printArea, built at print time to match the required
-   RPH table format exactly (Lexend, bordered label/value table, A4).
+   RPH table format (Lexend, bordered label/value table, A4). Each RPH is
+   wrapped in .print-page (fixed to the page's content box) > .print-page-inner
+   (the actual table). app.js measures .print-page-inner's natural height and,
+   only when it would overflow one page, scales it down and clamps
+   .print-page to the exact page-content height — this is what removes the
+   need to manually set the browser's print "scale" to 90% or less.
    ========================================================================== */
 
 #printArea { display: none; }
 
+/* keep these in sync with PRINT_MARGIN_MM in app.js */
+#printArea .print-page {
+  width: 178mm;
+  page-break-after: always;
+  break-after: page;
+}
+#printArea .print-page:last-child {
+  page-break-after: auto;
+  break-after: auto;
+}
+
+#printArea .print-page-inner { transform-origin: top left; }
+
 #printArea h1 {
   text-align: center;
-  font-size: 18px;
-  margin-bottom: 10px;
+  font-size: 16.5px;
+  margin: 0 0 8px;
   font-family: 'Lexend', sans-serif;
 }
 
@@ -532,32 +550,31 @@ textarea.editable {
   width: 100%;
   border-collapse: collapse;
   font-family: 'Lexend', sans-serif;
-  font-size: 12.5px;
-  line-height: 1.5;
+  font-size: 11px;
+  line-height: 1.4;
   color: #000;
 }
 
 #printArea td {
   border: 1px solid #000;
-  padding: 6px 8px;
+  padding: 4.5px 7px;
   vertical-align: top;
 }
 
 #printArea td.label {
-  width: 28%;
+  width: 26%;
   font-weight: 600;
   background-color: #f4f4f4;
+  white-space: nowrap;
 }
 
-#printArea td.refleksi { height: 80px; }
+#printArea td.refleksi { height: 60px; }
 
-#printArea .page-break { page-break-after: always; }
-
-#printArea ol { margin: 0; padding-left: 18px; }
-#printArea ol li { margin-bottom: 3px; }
+#printArea ol { margin: 0; padding-left: 16px; }
+#printArea ol li { margin-bottom: 2px; }
 
 @media print {
-  @page { size: A4; margin: 20mm; }
+  @page { size: A4; margin: 16mm; }
 
   html, body { background: #fff !important; }
 
@@ -567,4 +584,5 @@ textarea.editable {
 
   #printArea { display: block !important; }
 }
+
 
