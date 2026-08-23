@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+<title>RPH Sains Tahun 6 · SK Kuala Betis</title>
+<meta name="description" content="Rekod Pengajaran Harian Sains Tahun 4 — pilih minggu, sunting, dan cetak.">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@400;500;600&family=Lexend:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div>
+    <span class="brand-mark">SAINS · TAHUN 6 · SESI 2026</span>
+    <h1>Rekod RPH Digital</h1>
+  </div>
+  <div class="school-line">SK Kuala Betis</div>
+</header>
+
+<nav class="week-picker" aria-label="Pilih minggu">
+  <button id="weekPrev" class="week-nav no-print" type="button" aria-label="Minggu sebelum">‹</button>
+  <div class="week-scroll" id="weekScroll" role="listbox" aria-label="Senarai minggu 1 hingga 43"></div>
+  <button id="weekNext" class="week-nav no-print" type="button" aria-label="Minggu seterusnya">›</button>
+</nav>
+
+<div class="toolbar no-print">
+  <div class="toolbar-info" id="weekInfo"></div>
+  <div class="toolbar-actions">
+    <button id="printBtn" class="btn btn-primary" type="button">🖨 Cetak RPH</button>
+    <button id="menuBtn" class="btn btn-ghost" type="button" aria-label="Buka menu data">⋯ Data</button>
+  </div>
+</div>
+
+<div class="drawer no-print" id="dataDrawer">
+  <p>Suntingan disimpan terus pada peranti/pelayar ini sahaja (localStorage). Muat turun sandaran secara berkala supaya data tidak hilang jika cache pelayar dikosongkan.</p>
+  <div class="drawer-row">
+    <button id="exportBtn" class="btn btn-ghost btn-sm" type="button">⬇ Muat turun sandaran (.json)</button>
+    <label class="btn btn-ghost btn-sm" style="display:inline-flex;align-items:center;">
+      ⬆ Muat naik sandaran
+      <input id="importInput" type="file" accept="application/json" style="display:none;">
+    </label>
+    <button id="resetAllBtn" class="btn btn-ghost btn-sm btn-danger" type="button">Set semula semua RPH</button>
+  </div>
+</div>
+
+<main id="cardsContainer" class="cards"></main>
+
+<div id="printArea" aria-hidden="true"></div>
+
+<footer class="app-footer no-print">
+  RPH Sains Tahun 6 · Berpandukan DSKP &amp; Buku Teks Sains Tahun 4 SK · Dibina untuk guru
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script src="assets/data-tahun6-sains.js"></script>
+<script src="assets/app.js"></script>
+</body>
+</html>
