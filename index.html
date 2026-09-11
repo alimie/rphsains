@@ -145,5 +145,49 @@
   Rekod RPH Digital · Berpandukan DSKP &amp; Buku Teks SK · Dibina untuk guru
 </footer>
 
+<script src="assets/site.js"></script>
+<script>
+/* Selaraskan nilai yang berubah (sekolah, sesi, subjek, bilangan RPH) daripada
+   assets/site.js. Markup di atas kekal sebagai teks lalai, jadi halaman ini
+   masih terbaca dengan betul walaupun skrip ini tidak berjalan. */
+(function () {
+  "use strict";
+  var S = window.RPH_SITE;
+  if (!S) return;
+
+  function setLastText(container, value) {
+    if (!container) return;
+    if (value === undefined || value === null || value === "") return;
+    for (var i = container.childNodes.length - 1; i >= 0; i--) {
+      var node = container.childNodes[i];
+      if (node.nodeType === 3 && node.textContent.trim()) {
+        node.textContent = " " + value;
+        return;
+      }
+    }
+  }
+
+  var meta = document.querySelectorAll(".hero-meta span");
+  if (meta.length > 0) setLastText(meta[0], S.sekolah);
+  if (meta.length > 1 && S.sesi) setLastText(meta[1], "Sesi " + S.sesi);
+
+  var byYear = {};
+  (S.tahun || []).forEach(function (t) { byYear[String(t.tahun)] = t; });
+
+  Array.prototype.forEach.call(document.querySelectorAll(".year-card"), function (card) {
+    var numEl = card.querySelector(".year-num");
+    if (!numEl) return;
+    var y = String(parseInt((numEl.textContent || "").trim(), 10));
+    var info = byYear[y];
+    if (!info) return;
+    if (info.mataPelajaran) {
+      setLastText(card.querySelector(".subject-chip"), info.mataPelajaran);
+      card.setAttribute("aria-label", "Tahun " + y + ", " + info.mataPelajaran + ", sedia digunakan");
+    }
+    if (info.bil) setLastText(card.querySelector(".status-text"), "Sedia \u00b7 " + info.bil + " RPH");
+  });
+})();
+</script>
+
 </body>
 </html>
