@@ -4,8 +4,26 @@
   var DATA = window.RPH_DATA;
   var ENTRIES = DATA.entries;
   var TOTAL_WEEKS = 43;
-  var STORAGE_KEY = "rph-edits-" + "t" + DATA.tahun + "-" + DATA.mataPelajaran.toLowerCase();
-  var LAST_WEEK_KEY = "rph-last-week-" + "t" + DATA.tahun + "-" + DATA.mataPelajaran.toLowerCase();
+
+  // Lowercase, ASCII-ish token used inside storage keys.
+  function slug(v) {
+    return String(v || "").toLowerCase().replace(/[^a-z0-9]+/g, "");
+  }
+
+  // Scope the storage key by curriculum and session, not just year level.
+  // Under KP2027 a year level's subject and content change wholesale (Tahun 1-2
+  // Sains becomes "Alam dan Manusia" from 2027/2028) while entry ids stay
+  // 1..86. Without the scope, edits saved under the old curriculum would
+  // silently overlay the new content on the same page.
+  var SCOPE = "t" + DATA.tahun
+            + "-" + slug(DATA.mataPelajaran)
+            + "-s" + String(DATA.sesi || "")
+            + "-" + slug(DATA.kurikulum);
+  var STORAGE_KEY = "rph-edits-" + SCOPE;
+  var LAST_WEEK_KEY = "rph-last-week-" + SCOPE;
+  // Pre-scope keys, kept only to carry existing edits across once (see loadEdits).
+  var LEGACY_STORAGE_KEY = "rph-edits-" + "t" + DATA.tahun + "-" + String(DATA.mataPelajaran || "").toLowerCase();
+  var LEGACY_LAST_WEEK_KEY = "rph-last-week-" + "t" + DATA.tahun + "-" + String(DATA.mataPelajaran || "").toLowerCase();
 
   var edits = loadEdits();
   var currentWeek = loadLastWeek();
@@ -21,6 +39,15 @@
   function loadEdits() {
     try {
       var raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) {
+        // Carry edits saved before the key was scoped into the new key, once.
+        // They belong to this same year + subject, so keeping them is correct.
+        var legacy = localStorage.getItem(LEGACY_STORAGE_KEY);
+        if (legacy) {
+          localStorage.setItem(STORAGE_KEY, legacy);
+          raw = legacy;
+        }
+      }
       return raw ? JSON.parse(raw) : {};
     } catch (e) {
       return {};
@@ -39,12 +66,64 @@
     try {
       var w = parseInt(localStorage.getItem(LAST_WEEK_KEY), 10);
       if (w >= 1 && w <= TOTAL_WEEKS) return w;
+      // Carry the pre-scope value across once, same as loadEdits().
+      var legacy = parseInt(localStorage.getItem(LEGACY_LAST_WEEK_KEY), 10);
+      if (legacy >= 1 && legacy <= TOTAL_WEEKS) {
+        localStorage.setItem(LAST_WEEK_KEY, String(legacy));
+        return legacy;
+      }
     } catch (e) {}
     return 1;
   }
 
   function persistLastWeek(w) {
     try { localStorage.setItem(LAST_WEEK_KEY, String(w)); } catch (e) {}
+  }
+
+  // ---------- site metadata (single source: RPH_DATA) ----------
+  // School, subject and session are values that change (a teacher may move
+  // school; the curriculum changes the subject name and the session rolls
+  // over yearly). They live in RPH_DATA so a change is a data edit, not an
+  // HTML edit across every page. The markup keeps its current text as a
+  // fallback, so the page still reads correctly if this never runs.
+
+  function setLastText(container, value) {
+    if (!container || value === undefined || value === null || value === "") return false;
+    for (var i = container.childNodes.length - 1; i >= 0; i--) {
+      var node = container.childNodes[i];
+      if (node.nodeType === 3 && node.textContent.trim()) {
+        node.textContent = " " + value;
+        return true;
+      }
+    }
+    container.appendChild(document.createTextNode(" " + value));
+    return true;
+  }
+
+  function applySiteMetadata() {
+    // assets/site.js (RPH_SITE) is the single source for site-wide facts:
+    // school and session. RPH_DATA is the source for this page's own content
+    // (year, subject, curriculum). Fall back to RPH_DATA so a page still
+    // renders correctly if site.js is absent.
+    var site = window.RPH_SITE || {};
+    var mapel = DATA.mataPelajaran || "";
+    var sekolah = site.sekolah || DATA.sekolah || "";
+    var sesi = (site.sesi !== undefined && site.sesi !== null && site.sesi !== "")
+      ? site.sesi : (DATA.sesi || "");
+
+    setLastText(document.querySelector(".brand-mark"),
+      mapel.toUpperCase() + " \u00b7 TAHUN " + DATA.tahun + (sesi ? " \u00b7 SESI " + sesi : ""));
+    setLastText(document.querySelector(".school-line"), sekolah);
+
+    var footer = document.querySelector(".app-footer");
+    if (footer) {
+      footer.textContent = "RPH " + mapel + " Tahun " + DATA.tahun
+        + (sekolah ? " \u00b7 " + sekolah : "")
+        + " \u00b7 Berpandukan DSKP & Buku Teks \u00b7 Dibina untuk guru";
+    }
+    if (sekolah) {
+      document.title = "RPH " + mapel + " Tahun " + DATA.tahun + " \u00b7 " + sekolah;
+    }
   }
 
   // ---------- data helpers ----------
@@ -612,6 +691,7 @@
 
   // ---------- init ----------
 
+  applySiteMetadata();
   buildWeekChips();
   refreshChipState();
   renderWeek(currentWeek);
