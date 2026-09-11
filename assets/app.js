@@ -547,7 +547,7 @@
     var d = new Date();
     var stamp = d.getFullYear() + String(d.getMonth() + 1).padStart(2, "0") + String(d.getDate()).padStart(2, "0");
     a.href = url;
-    a.download = "rph-sains-tahun4-sandaran-" + stamp + ".json";
+    a.download = "rph-" + DATA.mataPelajaran.toLowerCase() + "-tahun" + DATA.tahun + "-sandaran-" + stamp + ".json";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -563,12 +563,36 @@
       try {
         var parsed = JSON.parse(reader.result);
         if (!parsed.entries || !Array.isArray(parsed.entries)) throw new Error("format tidak sah");
+
+        // Guard against restoring another year's backup onto this year's page.
+        // Every year shares the same entry ids (1..86), so a Year 6 backup
+        // dropped on the Year 4 page would silently overwrite all Year 4 work.
+        if (parsed.tahun !== undefined && Number(parsed.tahun) !== Number(DATA.tahun)) {
+          alert(
+            "Sandaran ini untuk Tahun " + parsed.tahun + ", tetapi halaman ini Tahun " +
+            DATA.tahun + ".\n\nImport dibatalkan supaya suntingan Tahun " + DATA.tahun +
+            " tidak ditimpa. Buka halaman Tahun " + parsed.tahun + " dahulu, kemudian muat naik semula."
+          );
+          evt.target.value = "";
+          return;
+        }
+        if (parsed.mataPelajaran !== undefined &&
+            String(parsed.mataPelajaran).toLowerCase() !== String(DATA.mataPelajaran).toLowerCase()) {
+          alert(
+            "Sandaran ini untuk mata pelajaran " + parsed.mataPelajaran +
+            ", tetapi halaman ini " + DATA.mataPelajaran + ".\n\nImport dibatalkan."
+          );
+          evt.target.value = "";
+          return;
+        }
+
+        var applied = 0;
         parsed.entries.forEach(function (entry) {
-          if (getOriginal(entry.id)) edits[entry.id] = entry;
+          if (getOriginal(entry.id)) { edits[entry.id] = entry; applied++; }
         });
         persistEdits();
         renderWeek(currentWeek);
-        showToast("Sandaran berjaya dimuat naik");
+        showToast("Sandaran berjaya dimuat naik · " + applied + " RPH");
       } catch (e) {
         showToast("Gagal membaca fail sandaran");
       }
